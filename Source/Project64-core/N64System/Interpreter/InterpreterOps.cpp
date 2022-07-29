@@ -188,7 +188,7 @@ R4300iOp::Func * R4300iOp::BuildInterpreter()
     Jump_Special[10] = UnknownOpcode;
     Jump_Special[11] = UnknownOpcode;
     Jump_Special[12] = SPECIAL_SYSCALL;
-    Jump_Special[13] = UnknownOpcode;
+    Jump_Special[13] = SPECIAL_BREAK;
     Jump_Special[14] = UnknownOpcode;
     Jump_Special[15] = SPECIAL_SYNC;
     Jump_Special[16] = SPECIAL_MFHI;
@@ -1583,6 +1583,8 @@ void R4300iOp::SPECIAL_TEQ()
     if (_GPR[m_Opcode.rs].DW == _GPR[m_Opcode.rt].DW)
     {
         g_Reg->DoTrapException(g_System->m_PipelineStage == PIPELINE_STAGE_JUMP);
+        g_System->m_PipelineStage = PIPELINE_STAGE_JUMP;
+        g_System->m_JumpToLocation = (*_PROGRAM_COUNTER);
     }
 }
 
@@ -1591,6 +1593,8 @@ void R4300iOp::SPECIAL_TGE()
     if (_GPR[m_Opcode.rs].DW >= _GPR[m_Opcode.rt].DW)
     {
         g_Reg->DoTrapException(g_System->m_PipelineStage == PIPELINE_STAGE_JUMP);
+        g_System->m_PipelineStage = PIPELINE_STAGE_JUMP;
+        g_System->m_JumpToLocation = (*_PROGRAM_COUNTER);
     }
 }
 
@@ -1599,6 +1603,8 @@ void R4300iOp::SPECIAL_TGEU()
     if (_GPR[m_Opcode.rs].UDW >= _GPR[m_Opcode.rt].UDW)
     {
         g_Reg->DoTrapException(g_System->m_PipelineStage == PIPELINE_STAGE_JUMP);
+        g_System->m_PipelineStage = PIPELINE_STAGE_JUMP;
+        g_System->m_JumpToLocation = (*_PROGRAM_COUNTER);
     }
 }
 
@@ -1607,6 +1613,8 @@ void R4300iOp::SPECIAL_TLT()
     if (_GPR[m_Opcode.rs].DW < _GPR[m_Opcode.rt].DW)
     {
         g_Reg->DoTrapException(g_System->m_PipelineStage == PIPELINE_STAGE_JUMP);
+        g_System->m_PipelineStage = PIPELINE_STAGE_JUMP;
+        g_System->m_JumpToLocation = (*_PROGRAM_COUNTER);
     }
 }
 
@@ -1615,6 +1623,8 @@ void R4300iOp::SPECIAL_TLTU()
     if (_GPR[m_Opcode.rs].UDW < _GPR[m_Opcode.rt].UDW)
     {
         g_Reg->DoTrapException(g_System->m_PipelineStage == PIPELINE_STAGE_JUMP);
+        g_System->m_PipelineStage = PIPELINE_STAGE_JUMP;
+        g_System->m_JumpToLocation = (*_PROGRAM_COUNTER);
     }
 }
 
@@ -1623,6 +1633,8 @@ void R4300iOp::SPECIAL_TNE()
     if (_GPR[m_Opcode.rs].DW != _GPR[m_Opcode.rt].DW)
     {
         g_Reg->DoTrapException(g_System->m_PipelineStage == PIPELINE_STAGE_JUMP);
+        g_System->m_PipelineStage = PIPELINE_STAGE_JUMP;
+        g_System->m_JumpToLocation = (*_PROGRAM_COUNTER);
     }
 }
 
@@ -1805,6 +1817,8 @@ void R4300iOp::REGIMM_TEQI()
     if (_GPR[m_Opcode.rs].DW == (int64_t)((int16_t)m_Opcode.immediate))
     {
         g_Reg->DoTrapException(g_System->m_PipelineStage == PIPELINE_STAGE_JUMP);
+        g_System->m_PipelineStage = PIPELINE_STAGE_JUMP;
+        g_System->m_JumpToLocation = (*_PROGRAM_COUNTER);
     }
 }
 
@@ -1813,6 +1827,8 @@ void R4300iOp::REGIMM_TGEI()
     if (_GPR[m_Opcode.rs].DW >= (int64_t)((int16_t)m_Opcode.immediate))
     {
         g_Reg->DoTrapException(g_System->m_PipelineStage == PIPELINE_STAGE_JUMP);
+        g_System->m_PipelineStage = PIPELINE_STAGE_JUMP;
+        g_System->m_JumpToLocation = (*_PROGRAM_COUNTER);
     }
 }
 
@@ -1825,6 +1841,8 @@ void R4300iOp::REGIMM_TGEIU()
     if (_GPR[m_Opcode.rs].UDW >= (uint64_t)imm64)
     {
         g_Reg->DoTrapException(g_System->m_PipelineStage == PIPELINE_STAGE_JUMP);
+        g_System->m_PipelineStage = PIPELINE_STAGE_JUMP;
+        g_System->m_JumpToLocation = (*_PROGRAM_COUNTER);
     }
 }
 
@@ -1833,6 +1851,8 @@ void R4300iOp::REGIMM_TLTI()
     if (_GPR[m_Opcode.rs].DW < (int64_t)((int16_t)m_Opcode.immediate))
     {
         g_Reg->DoTrapException(g_System->m_PipelineStage == PIPELINE_STAGE_JUMP);
+        g_System->m_PipelineStage = PIPELINE_STAGE_JUMP;
+        g_System->m_JumpToLocation = (*_PROGRAM_COUNTER);
     }
 }
 
@@ -1845,6 +1865,8 @@ void R4300iOp::REGIMM_TLTIU()
     if (_GPR[m_Opcode.rs].UDW < (uint64_t)imm64)
     {
         g_Reg->DoTrapException(g_System->m_PipelineStage == PIPELINE_STAGE_JUMP);
+        g_System->m_PipelineStage = PIPELINE_STAGE_JUMP;
+        g_System->m_JumpToLocation = (*_PROGRAM_COUNTER);
     }
 }
 
@@ -1853,6 +1875,8 @@ void R4300iOp::REGIMM_TNEI()
     if (_GPR[m_Opcode.rs].DW != (int64_t)((int16_t)m_Opcode.immediate))
     {
         g_Reg->DoTrapException(g_System->m_PipelineStage == PIPELINE_STAGE_JUMP);
+        g_System->m_PipelineStage = PIPELINE_STAGE_JUMP;
+        g_System->m_JumpToLocation = (*_PROGRAM_COUNTER);
     }
 }
 

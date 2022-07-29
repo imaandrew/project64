@@ -10,6 +10,7 @@
 #include <Project64-core\N64System\MemoryHandler\CartridgeDomain2Address1Handler.h>
 #include <Project64-core\N64System\MemoryHandler\CartridgeDomain2Address2Handler.h>
 #include <Project64-core\N64System\MemoryHandler\DisplayControlRegHandler.h>
+#include <Project64-core\N64System\MemoryHandler\HomeboyHandler.h>
 #include <Project64-core\N64System\MemoryHandler\ISViewerHandler.h>
 #include <Project64-core\N64System\MemoryHandler\MIPSInterfaceHandler.h>
 #include <Project64-core\N64System\MemoryHandler\PeripheralInterfaceHandler.h>
@@ -26,7 +27,9 @@
 #include <sys/ucontext.h>
 #endif
 
-#ifndef _WIN32
+#ifdef _WIN32
+#include <WinSock2.h>
+#else
 #include <signal.h>
 // siginfo_t
 #endif
@@ -47,6 +50,30 @@ class CX86RecompilerOps;
 #elif defined(__arm__) || defined(_M_ARM)
 class CArmRecompilerOps;
 #endif
+
+class CHomeboyFIFO
+{
+public:
+    CHomeboyFIFO(bool enable, int port);
+    ~CHomeboyFIFO();
+
+    SOCKET get_client();
+    void put_client();
+
+private:
+    static DWORD WINAPI thread_proc(LPVOID lpParam);
+    bool set_client_socket(SOCKET client_socket, bool reset);
+
+    int         m_wsa_ret;
+    WSAEVENT    m_accept_event;
+    WSAEVENT    m_close_event;
+    WSAEVENT    m_kill_event;
+    SOCKET      m_listen_socket;
+    volatile
+    SOCKET      m_client_socket;
+    HANDLE      m_mutex;
+    HANDLE      m_thread;
+};
 
 class CMipsMemoryVM :
     private R4300iOp,
@@ -177,6 +204,7 @@ private:
     CartridgeDomain2Address1Handler m_CartridgeDomain2Address1Handler;
     CartridgeDomain2Address2Handler m_CartridgeDomain2Address2Handler;
     DisplayControlRegHandler m_DPCommandRegistersHandler;
+    HomeboyHandler m_HomeboyHandler;
     ISViewerHandler m_ISViewerHandler;
     MIPSInterfaceHandler m_MIPSInterfaceHandler;
     PeripheralInterfaceHandler m_PeripheralInterfaceHandler;
@@ -190,6 +218,7 @@ private:
     uint8_t * m_RDRAM, *m_DMEM, *m_IMEM;
     uint32_t m_AllocatedRdramSize;
     CN64Rom & m_Rom;
+    CHomeboyFIFO m_hb_fifo;
 
     mutable char m_strLabelName[100];
     uint32_t * m_TLB_ReadMap;

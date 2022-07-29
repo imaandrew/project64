@@ -569,3 +569,4 @@ public:
 #include "SettingsPage-Options.h"
 #include "SettingsPage-Plugin.h"
 #include "SettingsPage-DiskDrive.h"
+#include "SettingsPage-Homeboy.h"

@@ -170,6 +170,7 @@ void CLanguage::LoadDefaultStrings(void)
     DEF_STR(TAB_DEFAULTS, "Defaults");
     DEF_STR(TAB_DISKDRIVE, "64DD");
     DEF_STR(TAB_DISKSETTINGS, "64DD");
+    DEF_STR(TAB_HOMEBOY, "Homeboy");
 
     // Plugin dialog
     DEF_STR(PLUG_ABOUT, "About");
@@ -298,6 +299,8 @@ void CLanguage::LoadDefaultStrings(void)
     // RDRAM size
     DEF_STR(RDRAM_4MB, "4 MB");
     DEF_STR(RDRAM_8MB, "8 MB");
+    DEF_STR(RDRAM_12MB, "12 MB");
+    DEF_STR(RDRAM_16MB, "16 MB");
 
     // Advanced block linking
     DEF_STR(ABL_ON, "On");

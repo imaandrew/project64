@@ -32,6 +32,11 @@ DISK_SEEK_TYPE CGameSettings::m_DiskSeekTimingType = DiskSeek_Turbo;
 bool CGameSettings::m_EnhancmentOverClock = false;
 uint32_t CGameSettings::m_EnhancmentOverClockModifier = 1;
 bool CGameSettings::m_EnableDisk = false;
+bool CGameSettings::m_bEnableHomeboy;
+bool CGameSettings::m_bEnableSDCard;
+std::string CGameSettings::m_sSDCardPath;
+bool CGameSettings::m_bEnableFIFO;
+uint32_t CGameSettings::m_dwFIFOPort;
 
 int32_t CGameSettings::m_RefCount = 0;
 
@@ -41,7 +46,17 @@ CGameSettings::CGameSettings()
     if (m_RefCount == 1)
     {
         g_Settings->RegisterChangeCB(Setting_EnableDisk, nullptr, EnableDiskChanged);
+        g_Settings->RegisterChangeCB(Homeboy_Enable, nullptr, EnableHomeboyChanged);
+        g_Settings->RegisterChangeCB(Homeboy_SDCard_Enable, nullptr, EnableSDCardChanged);
+        g_Settings->RegisterChangeCB(Homeboy_SDCard_Path, nullptr, SDCardPathChanged);
+        g_Settings->RegisterChangeCB(Homeboy_FIFO_Enable, nullptr, EnableFIFOChanged);
+        g_Settings->RegisterChangeCB(Homeboy_FIFO_Port, nullptr, FIFOPortChanged);
         EnableDiskChanged(nullptr);
+        EnableHomeboyChanged(nullptr);
+        EnableSDCardChanged(nullptr);
+        SDCardPathChanged(nullptr);
+        EnableFIFOChanged(nullptr);
+        FIFOPortChanged(nullptr);
     }
 }
 
@@ -51,6 +66,12 @@ CGameSettings::~CGameSettings()
     if (m_RefCount == 0)
     {
         g_Settings->RegisterChangeCB(Setting_EnableDisk, nullptr, EnableDiskChanged);
+        g_Settings->UnregisterChangeCB(Setting_EnableDisk, nullptr, EnableDiskChanged);
+        g_Settings->UnregisterChangeCB(Homeboy_Enable, nullptr, EnableHomeboyChanged);
+        g_Settings->UnregisterChangeCB(Homeboy_SDCard_Enable, nullptr, EnableSDCardChanged);
+        g_Settings->UnregisterChangeCB(Homeboy_SDCard_Path, nullptr, SDCardPathChanged);
+        g_Settings->UnregisterChangeCB(Homeboy_FIFO_Enable, nullptr, EnableFIFOChanged);
+        g_Settings->UnregisterChangeCB(Homeboy_FIFO_Port, nullptr, FIFOPortChanged);
     }
 }
 
@@ -127,4 +148,29 @@ void CGameSettings::SetOverClockModifier(bool EnhancmentOverClock, uint32_t Enha
 void CGameSettings::EnableDiskChanged(void *)
 {
     m_EnableDisk = g_Settings->LoadBool(Setting_EnableDisk);
+}
+
+void CGameSettings::EnableHomeboyChanged(void *)
+{
+    m_bEnableHomeboy = g_Settings->LoadBool(Homeboy_Enable);
+}
+
+void CGameSettings::EnableSDCardChanged(void *)
+{
+    m_bEnableSDCard = g_Settings->LoadBool(Homeboy_SDCard_Enable);
+}
+
+void CGameSettings::SDCardPathChanged(void *)
+{
+    m_sSDCardPath = g_Settings->LoadStringVal(Homeboy_SDCard_Path);
+}
+
+void CGameSettings::EnableFIFOChanged(void *)
+{
+    m_bEnableFIFO = g_Settings->LoadBool(Homeboy_FIFO_Enable);
+}
+
+void CGameSettings::FIFOPortChanged(void *)
+{
+    m_dwFIFOPort = g_Settings->LoadDword(Homeboy_FIFO_Port);
 }

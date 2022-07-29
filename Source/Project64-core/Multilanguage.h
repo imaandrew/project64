@@ -222,6 +222,7 @@ enum LanguageStringID
     TAB_DEFAULTS = 412,
     TAB_DISKDRIVE = 413,
     TAB_DISKSETTINGS = 414,
+    TAB_HOMEBOY = 415,
 
     // Plugin dialog
     PLUG_ABOUT = 420,
@@ -351,6 +352,8 @@ enum LanguageStringID
     // RDRAM size
     RDRAM_4MB = 580,
     RDRAM_8MB = 581,
+    RDRAM_12MB = 582,
+    RDRAM_16MB = 583,
 
     // Advanced block linking
     ABL_ON = 600,

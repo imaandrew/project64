@@ -304,6 +304,12 @@ void CSettings::AddHowToHandleSetting(const char * BaseDirectory)
     AddHandler(RomList_7zipCache, new CSettingTypeApplicationPath("Settings", "7zipCache", RomList_7zipCacheDefault));
     AddHandler(RomList_7zipCacheDefault, new CSettingTypeRelativePath("Config", "Project64.zcache"));
 
+    AddHandler(Homeboy_Enable, new CSettingTypeApplication("Settings", "Homeboy Enabled", (uint32_t)false));
+    AddHandler(Homeboy_SDCard_Enable, new CSettingTypeApplication("Settings", "SD Card Enabled", (uint32_t)false));
+    AddHandler(Homeboy_SDCard_Path, new CSettingTypeApplicationPath("Settings", "SD Card Path", Default_None));
+    AddHandler(Homeboy_FIFO_Enable, new CSettingTypeApplication("Settings", "FIFO Enabled", (uint32_t)false));
+    AddHandler(Homeboy_FIFO_Port, new CSettingTypeApplication("Settings", "FIFO Port", (uint32_t)42764));
+
     AddHandler(GameRunning_LoadingInProgress, new CSettingTypeTempBool(false));
     AddHandler(GameRunning_CPU_Running, new CSettingTypeTempBool(false));
     AddHandler(GameRunning_CPU_Paused, new CSettingTypeTempBool(false));

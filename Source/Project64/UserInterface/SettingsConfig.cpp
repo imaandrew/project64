@@ -132,6 +132,7 @@ LRESULT	CSettingConfig::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*
         m_AdvancedPage = new CAdvancedOptionsPage(this->m_hWnd, rcSettingInfo);
         m_DefaultsPage = new CDefaultsOptionsPage(this->m_hWnd, rcSettingInfo);
         m_DiskDrivePage = new CDiskDrivePage(this->m_hWnd, rcSettingInfo);
+        m_HomeboyPage = new CHomeboyPage(this->m_hWnd, rcSettingInfo);
 
         SettingsSection = new CConfigSettingSection(wGS(TAB_OPTIONS).c_str());
         SettingsSection->AddPage(m_GeneralOptionsPage);
@@ -139,6 +140,7 @@ LRESULT	CSettingConfig::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*
         SettingsSection->AddPage(m_DefaultsPage);
         SettingsSection->AddPage(new COptionsDirectoriesPage(this->m_hWnd, rcSettingInfo));
         SettingsSection->AddPage(m_DiskDrivePage);
+        SettingsSection->AddPage(m_HomeboyPage);
         m_Sections.push_back(SettingsSection);
 
         SettingsSection = new CConfigSettingSection(wGS(TAB_ROMSELECTION).c_str());

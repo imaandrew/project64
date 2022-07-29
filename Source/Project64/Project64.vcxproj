@@ -133,6 +133,7 @@
     <ClCompile Include="UserInterface\Settings\SettingsPage-Game-Recompiler.cpp" />
     <ClCompile Include="UserInterface\Settings\SettingsPage-Game-Status.cpp" />
     <ClCompile Include="UserInterface\Settings\SettingsPage-GameBrowser.cpp" />
+    <ClCompile Include="UserInterface\Settings\SettingsPage-Homeboy.cpp" />
     <ClCompile Include="UserInterface\Settings\SettingsPage-KeyboardShortcuts.cpp" />
     <ClCompile Include="UserInterface\Settings\SettingsPage-Options.cpp" />
     <ClCompile Include="UserInterface\Settings\SettingsPage-Plugin.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="UserInterface\Settings\SettingsPage-Game-Recompiler.h" />
     <ClInclude Include="UserInterface\Settings\SettingsPage-Game-Status.h" />
     <ClInclude Include="UserInterface\Settings\SettingsPage-GameBrowser.h" />
+    <ClInclude Include="UserInterface\Settings\SettingsPage-Homeboy.h" />
     <ClInclude Include="UserInterface\Settings\SettingsPage-KeyboardShortcuts.h" />
     <ClInclude Include="UserInterface\Settings\SettingsPage-Options.h" />
     <ClInclude Include="UserInterface\Settings\SettingsPage-Plugin.h" />

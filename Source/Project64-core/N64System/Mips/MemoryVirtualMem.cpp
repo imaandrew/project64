@@ -17,6 +17,280 @@ uint32_t CMipsMemoryVM::RegModValue;
 
 #pragma warning(disable:4355) // Disable 'this' : used in base member initializer list
 
+CHomeboyFIFO::CHomeboyFIFO(bool enable, int port) :
+    m_wsa_ret(-1),
+    m_accept_event(WSA_INVALID_EVENT),
+    m_close_event(WSA_INVALID_EVENT),
+    m_kill_event(WSA_INVALID_EVENT),
+    m_listen_socket(INVALID_SOCKET),
+    m_client_socket(INVALID_SOCKET),
+    m_mutex(INVALID_HANDLE_VALUE),
+    m_thread(INVALID_HANDLE_VALUE)
+{
+    if (!enable)
+    {
+        return;
+    }
+
+    {
+        WSADATA wsa_data;
+
+        m_wsa_ret = WSAStartup(MAKEWORD(2, 2), &wsa_data);
+        if (m_wsa_ret != 0)
+        {
+            return;
+        }
+    }
+
+    m_accept_event = WSACreateEvent();
+    if (m_accept_event == WSA_INVALID_EVENT)
+    {
+        return;
+    }
+
+    m_close_event = WSACreateEvent();
+    if (m_close_event == WSA_INVALID_EVENT)
+    {
+        return;
+    }
+
+    m_kill_event = WSACreateEvent();
+    if (m_kill_event == WSA_INVALID_EVENT)
+    {
+        return;
+    }
+
+    m_listen_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (m_listen_socket == INVALID_SOCKET)
+    {
+        return;
+    }
+
+    {
+        sockaddr_in addr;
+
+        addr.sin_family = AF_INET;
+        addr.sin_addr.s_addr = inet_addr("0.0.0.0");
+        addr.sin_port = htons(port);
+
+        if (bind(m_listen_socket, (SOCKADDR *) &addr, sizeof(addr)) != 0)
+        {
+            closesocket(m_listen_socket);
+            m_listen_socket = INVALID_SOCKET;
+            return;
+        }
+    }
+
+    if (WSAEventSelect(m_listen_socket, m_accept_event, FD_ACCEPT) != 0)
+    {
+        closesocket(m_listen_socket);
+        m_listen_socket = INVALID_SOCKET;
+        return;
+    }
+
+    if (listen(m_listen_socket, 1) != 0)
+    {
+        closesocket(m_listen_socket);
+        m_listen_socket = INVALID_SOCKET;
+        return;
+    }
+
+    m_mutex = CreateMutex(NULL, FALSE, NULL);
+    if (m_mutex == INVALID_HANDLE_VALUE)
+    {
+        closesocket(m_listen_socket);
+        m_listen_socket = INVALID_SOCKET;
+        return;
+    }
+
+    m_thread = CreateThread(NULL, 0, thread_proc, this, 0, NULL);
+    if (m_thread == INVALID_HANDLE_VALUE)
+    {
+        closesocket(m_listen_socket);
+        m_listen_socket = INVALID_SOCKET;
+        return;
+    }
+}
+
+CHomeboyFIFO::~CHomeboyFIFO()
+{
+    if (m_thread != INVALID_HANDLE_VALUE)
+    {
+        if (m_kill_event != WSA_INVALID_EVENT)
+        {
+            WSASetEvent(m_kill_event);
+        }
+        WaitForSingleObject(m_thread, INFINITE);
+        CloseHandle(m_thread);
+    }
+
+    if (m_mutex != INVALID_HANDLE_VALUE)
+    {
+        WaitForSingleObject(m_mutex, INFINITE);
+        CloseHandle(m_mutex);
+    }
+
+    if (m_client_socket != INVALID_SOCKET)
+    {
+        shutdown(m_client_socket, SD_BOTH);
+        closesocket(m_client_socket);
+    }
+
+    if (m_listen_socket != INVALID_SOCKET)
+    {
+        shutdown(m_client_socket, SD_BOTH);
+        closesocket(m_client_socket);
+    }
+
+    if (m_accept_event != WSA_INVALID_EVENT)
+    {
+        WSACloseEvent(m_accept_event);
+    }
+
+    if (m_close_event != WSA_INVALID_EVENT)
+    {
+        WSACloseEvent(m_close_event);
+    }
+
+    if (m_kill_event != WSA_INVALID_EVENT)
+    {
+        WSACloseEvent(m_kill_event);
+    }
+
+    if (m_wsa_ret == 0)
+    {
+        WSACleanup();
+    }
+}
+
+bool CHomeboyFIFO::set_client_socket(SOCKET client_socket, bool reset)
+{
+    if (WaitForSingleObject(m_mutex, INFINITE) != WAIT_OBJECT_0)
+    {
+        return false;
+    }
+
+    bool success = true;
+
+    if (m_client_socket == INVALID_SOCKET || reset)
+    {
+        if (client_socket != INVALID_SOCKET)
+        {
+            DWORD timeo = 0;
+
+            if (setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *) &timeo, sizeof(timeo)) != 0)
+                success = false;
+
+            if (setsockopt(client_socket, SOL_SOCKET, SO_SNDTIMEO, (const char *) &timeo, sizeof(timeo)) != 0)
+                success = false;
+
+            if (WSAEventSelect(client_socket, m_close_event, FD_CLOSE) != 0)
+                success = false;
+        }
+    }
+    else
+    {
+        success = false;
+    }
+
+    if (success)
+    {
+        if (m_client_socket != INVALID_SOCKET)
+        {
+            shutdown(m_client_socket, SD_BOTH);
+            closesocket(m_client_socket);
+        }
+
+        m_client_socket = client_socket;
+    }
+
+    ReleaseMutex(m_mutex);
+
+    return success;
+}
+
+DWORD WINAPI CHomeboyFIFO::thread_proc(LPVOID lpParam)
+{
+    CHomeboyFIFO * fifo = (CHomeboyFIFO *) lpParam;
+
+    WSAEVENT wait_events[] =
+    {
+        fifo->m_accept_event,
+        fifo->m_close_event,
+        fifo->m_kill_event,
+    };
+    DWORD num_wait_events = sizeof(wait_events) / sizeof * (wait_events);
+
+    for (;;)
+    {
+        DWORD res = WSAWaitForMultipleEvents(num_wait_events, wait_events, FALSE, WSA_INFINITE, FALSE);
+
+        if (res != WSA_WAIT_FAILED)
+        {
+            WSANETWORKEVENTS network_events;
+            WSAEVENT event = wait_events[res - WSA_WAIT_EVENT_0];
+
+            if (event == fifo->m_accept_event)
+            {
+                if (WSAEnumNetworkEvents(fifo->m_listen_socket, event, &network_events) == 0)
+                {
+                    if (network_events.lNetworkEvents & FD_ACCEPT)
+                    {
+                        SOCKET client_socket = accept(fifo->m_listen_socket, NULL, NULL);
+
+                        if (client_socket != INVALID_SOCKET)
+                        {
+                            if (!fifo->set_client_socket(client_socket, false))
+                            {
+                                shutdown(client_socket, SD_BOTH);
+                                closesocket(client_socket);
+                            }
+                        }
+                    }
+                }
+            }
+            else if (event == fifo->m_close_event)
+            {
+                if (WSAEnumNetworkEvents(fifo->m_client_socket, event, &network_events) == 0)
+                {
+                    if (network_events.lNetworkEvents & FD_CLOSE)
+                    {
+                        fifo->set_client_socket(INVALID_SOCKET, true);
+                    }
+                }
+            }
+            else if (event == fifo->m_kill_event)
+            {
+                WSAResetEvent(event);
+
+                return 0;
+            }
+        }
+    }
+}
+
+SOCKET CHomeboyFIFO::get_client()
+{
+    SOCKET client_socket = INVALID_SOCKET;
+
+    if (WaitForSingleObject(m_mutex, INFINITE) == WAIT_OBJECT_0)
+    {
+        client_socket = m_client_socket;
+
+        if (client_socket == INVALID_SOCKET)
+        {
+            ReleaseMutex(m_mutex);
+        }
+    }
+
+    return client_socket;
+}
+
+void CHomeboyFIFO::put_client()
+{
+    ReleaseMutex(m_mutex);
+}
+
 CMipsMemoryVM::CMipsMemoryVM(CN64System & System, bool SavesReadOnly) :
     CPifRam(SavesReadOnly),
     m_System(System),
@@ -27,6 +301,7 @@ CMipsMemoryVM::CMipsMemoryVM(CN64System & System, bool SavesReadOnly) :
     m_CartridgeDomain2Address2Handler(System, System.m_Reg, *this, SavesReadOnly),
     m_RDRAMRegistersHandler(System.m_Reg),
     m_DPCommandRegistersHandler(System, System.GetPlugins(), System.m_Reg),
+    m_HomeboyHandler(*this, m_hb_fifo),
     m_ISViewerHandler(System),
     m_MIPSInterfaceHandler(System.m_Reg),
     m_PeripheralInterfaceHandler(System, *this, System.m_Reg, m_CartridgeDomain2Address2Handler),
@@ -43,7 +318,8 @@ CMipsMemoryVM::CMipsMemoryVM(CN64System & System, bool SavesReadOnly) :
     m_RDRAM(nullptr),
     m_DMEM(nullptr),
     m_IMEM(nullptr),
-    m_Rom(*g_Rom)
+    m_Rom(*g_Rom),
+    m_hb_fifo(bEnableHomeboy() && bEnableFIFO(), dwFIFOPort())
 {
     g_Settings->RegisterChangeCB(Game_RDRamSize, this, (CSettings::SettingChangedFunc)RdramChanged);
 }
@@ -668,7 +944,12 @@ bool CMipsMemoryVM::LW_NonMemory(uint32_t VAddr, uint32_t & Value)
     case 0x04800000: m_SerialInterfaceHandler.Read32(PAddr, Value); break;
     case 0x05000000: m_CartridgeDomain2Address1Handler.Read32(PAddr, Value); break;
     case 0x06000000: m_CartridgeDomain1Address1Handler.Read32(PAddr, Value); break;
-    case 0x08000000: m_CartridgeDomain2Address2Handler.Read32(PAddr, Value); break;
+    case 0x08000000:
+            if (bEnableHomeboy() && (PAddr & 0xFFFF0000) == 0x08050000)
+                m_HomeboyHandler.Read32(PAddr, Value);
+            else
+                m_CartridgeDomain2Address2Handler.Read32(PAddr, Value);
+            break;
     case 0x1FC00000: m_PifRamHandler.Read32(PAddr, Value); break;
     case 0x1FF00000: m_CartridgeDomain1Address3Handler.Read32(PAddr, Value); break;
     default:
@@ -841,7 +1122,10 @@ bool CMipsMemoryVM::SW_NonMemory(uint32_t VAddr, uint32_t Value)
     case 0x06000000: m_CartridgeDomain1Address1Handler.Write32(PAddr, Value, 0xFFFFFFFF); break;
     case 0x08000000:
     case 0x0fe00000:
-        m_CartridgeDomain2Address2Handler.Write32(PAddr, Value, 0xFFFFFFFF); 
+        if (bEnableHomeboy() && (PAddr & 0xFFFF0000) == 0x08050000)
+            m_HomeboyHandler.Write32(PAddr, Value, 0xFFFFFFFF);
+        else
+            m_CartridgeDomain2Address2Handler.Write32(PAddr, Value, 0xFFFFFFFF);
         break;
     case 0x13F00000: m_ISViewerHandler.Write32(PAddr, Value, 0xFFFFFFFF); break;
     case 0x1FC00000: m_PifRamHandler.Write32(PAddr, Value, 0xFFFFFFFF); break;

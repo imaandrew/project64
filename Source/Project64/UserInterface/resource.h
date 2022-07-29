@@ -82,6 +82,7 @@
 #define IDD_Settings_GameDiskDrive      217
 #define IDD_Enhancement_Plugins         218
 #define IDD_Debugger_ScriptsAutorun     225
+#define IDD_Settings_Homeboy            227
 #define IDC_MENU_ITEM_TEXT              1000
 #define IDC_CLOSE_BUTTON                1001
 #define IDC_LIST2                       1003
@@ -287,13 +288,20 @@
 #define IDC_CMD_LIST                    1113
 #define IDC_ROMSEL_TEXT4                1114
 #define IDC_R1_EDIT                     1114
+#define IDC_ENABLESD                    1115
+#define IDC_SDPATH_TXT                  1116
 #define IDC_GO_BTN                      1116
+#define IDC_SDPATH                      1117
+#define IDC_SELECT_SDPATH               1118
 #define IDC_UNMARK                      1119
 #define IDC_STEP_BTN                    1119
 #define IDC_ADDSYMBOL_BTN               1119
+#define IDC_ENABLEFIFO                  1119
 #define IDC_NOTES                       1120
 #define IDC_STEPOVER_BTN                1120
+#define IDC_FIFOPORT_TXT                1120
 #define IDC_CHEAT_LIST                  1121
+#define IDC_FIFOPORT                    1121
 #define IDC_CHEAT_NAME                  1122
 #define IDC_DELAY_SI                    1123
 #define IDC_VALUE                       1124
@@ -874,6 +882,7 @@
 #define IDC_REMOVE_BTN                  1734
 #define IDC_ADD_BTN                     1735
 #define IDC_AUTORUN_LIST                1737
+#define IDC_ENABLEHOMEBOY               1738
 #define ID_POPUPMENU_PLAYGAMEWITHDISK   40008
 #define ID_POPUPMENU_ADDSYMBOL          40013
 #define ID_POPUPMENU_VIEWDISASM         40017
@@ -946,9 +955,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        227
+#define _APS_NEXT_RESOURCE_VALUE        228
 #define _APS_NEXT_COMMAND_VALUE         40122
-#define _APS_NEXT_CONTROL_VALUE         1738
+#define _APS_NEXT_CONTROL_VALUE         1739
 #define _APS_NEXT_SYMED_VALUE           102
 #endif
 #endif

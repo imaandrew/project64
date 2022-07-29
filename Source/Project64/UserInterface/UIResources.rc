@@ -1436,6 +1436,23 @@ BEGIN
     CONTROL         "",IDC_AUTORUN_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,170,17,141,151
 END
 
+IDD_Settings_Homeboy DIALOGEX 0, 0, 216, 103
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+CONTROL         "Enable Homeboy (requires interpreter core)", IDC_ENABLEHOMEBOY, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 6, 5, 204, 10
+CONTROL         "", IDC_STATIC, "Static", SS_BLACKFRAME | SS_SUNKEN, 4, 19, 208, 1
+CONTROL         "Enable SD card", IDC_ENABLESD, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 6, 26, 204, 10
+LTEXT           "SD card path:", IDC_SDPATH_TXT, 6, 39, 204, 10
+EDITTEXT        IDC_SDPATH, 6, 49, 184, 12, ES_AUTOHSCROLL
+PUSHBUTTON      "...", IDC_SELECT_SDPATH, 196, 49, 14, 12
+CONTROL         "", IDC_STATIC, "Static", SS_BLACKFRAME | SS_SUNKEN, 4, 67, 208, 1
+CONTROL         "Enable FIFO over TCP", IDC_ENABLEFIFO, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 6, 74, 204, 10
+LTEXT           "TCP port:", IDC_FIFOPORT_TXT, 6, 87, 37, 10
+EDITTEXT        IDC_FIFOPORT, 43, 85, 39, 12, ES_AUTOHSCROLL | ES_NUMBER
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1918,6 +1935,14 @@ BEGIN
         TOPMARGIN, 6
         BOTTOMMARGIN, 209
     END
+
+    IDD_Settings_Homeboy, DIALOG
+    BEGIN
+        LEFTMARGIN, 4
+        RIGHTMARGIN, 212
+        TOPMARGIN, 4
+        BOTTOMMARGIN, 99
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -2305,6 +2330,11 @@ END
 IDD_Enhancement_Plugins AFX_DIALOG_LAYOUT
 BEGIN
     0
+END
+
+IDD_Settings_Homeboy AFX_DIALOG_LAYOUT
+BEGIN
+0
 END
 
 

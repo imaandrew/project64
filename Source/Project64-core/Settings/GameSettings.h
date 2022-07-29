@@ -38,19 +38,27 @@ public:
     inline static uint32_t OverClockModifier(void) { return m_OverClockModifier; }
     inline static DISK_SEEK_TYPE DiskSeekTimingType(void) { return m_DiskSeekTimingType; };
     inline static bool EnableDisk(void) { return m_EnableDisk; }
+    inline static bool bEnableHomeboy(void) { return m_bEnableHomeboy; }
+    inline static bool bEnableSDCard(void) { return m_bEnableSDCard; }
+    inline static const std::string& sSDCardPath(void) { return m_sSDCardPath; }
+    inline static bool bEnableFIFO(void) { return m_bEnableFIFO; }
+    inline static uint32_t dwFIFOPort(void) { return m_dwFIFOPort; }
 
 	void RefreshSyncToAudio(void);
     static void SetOverClockModifier(bool EnhancmentOverClock, uint32_t EnhancmentOverClockModifier);
 
 protected:
     static void SpeedChanged(int32_t SpeedLimit);
-    static void EnableDiskChanged(void);
+    static void EnableDiskChanged(void *);
+    static void EnableHomeboyChanged(void *);
+    static void EnableSDCardChanged(void *);
+    static void SDCardPathChanged(void *);
+    static void EnableFIFOChanged(void *);
+    static void FIFOPortChanged(void *);
 
 private:
     CGameSettings(const CGameSettings&);
     CGameSettings& operator=(const CGameSettings&);
-
-    static void EnableDiskChanged(void *);
 
     // Settings that can be changed on the fly
     static bool m_UseHleGfx;
@@ -82,5 +90,10 @@ private:
     static bool m_EnhancmentOverClock;
     static uint32_t m_EnhancmentOverClockModifier;
     static bool m_EnableDisk;
+    static bool m_bEnableHomeboy;
+    static bool m_bEnableSDCard;
+    static std::string m_sSDCardPath;
+    static bool m_bEnableFIFO;
+    static uint32_t m_dwFIFOPort;
     static int32_t m_RefCount;
 };

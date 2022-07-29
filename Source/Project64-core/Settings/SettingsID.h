@@ -229,6 +229,13 @@ enum SettingID
     RomList_7zipCache,
     RomList_7zipCacheDefault,
 
+    // Homeboy
+    Homeboy_Enable,
+    Homeboy_SDCard_Enable,
+    Homeboy_SDCard_Path,
+    Homeboy_FIFO_Enable,
+    Homeboy_FIFO_Port,
+
     // File info
     File_DiskIPLPath,
     File_DiskIPLUSAPath,
