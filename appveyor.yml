@@ -5,6 +5,7 @@ platform:
 - x64
 configuration:
 - Release
+- Debug
 
 before_build:
 - ps: >-
